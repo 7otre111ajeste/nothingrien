@@ -144,6 +144,33 @@ const Index = () => {
               <h3 className="font-serif-italic text-2xl mb-3">{t.manifesto_title}</h3>
               <p className="text-xs text-muted-foreground leading-relaxed px-2">{t.manifesto_body}</p>
             </section>
+
+            {/* badges */}
+            <section className="mt-12 w-full max-w-md">
+              <div className="text-[10px] tracking-widest text-muted-foreground text-center mb-4">{cpT.badges}</div>
+              {stats.badges.length === 0 ? (
+                <div className="text-center text-xs text-muted-foreground/60 italic">{cpT.none}</div>
+              ) : (
+                <div className="flex flex-wrap justify-center gap-2">
+                  {CHECKPOINT_DEFS.map(d => {
+                    const owned = stats.badges.includes(d.threshold);
+                    if (!owned) return null;
+                    const isEq = equipped === d.threshold;
+                    return (
+                      <button
+                        key={d.threshold}
+                        onClick={() => equipBadge(d.threshold)}
+                        title={d.name[lang]}
+                        className={`flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-colors ${isEq ? "bg-foreground text-background" : "bg-secondary/40 hover:bg-secondary text-foreground"}`}
+                      >
+                        <span className="font-serif-italic text-2xl leading-none">{d.badge}</span>
+                        <span className="text-[9px] tracking-wider opacity-70">{d.name[lang]}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
           </div>
         )}
 
@@ -176,6 +203,14 @@ const Index = () => {
           ))}
         </div>
       </nav>
+
+      <CheckpointOverlay
+        def={unlocked ? defFor(unlocked) ?? null : null}
+        lang={lang}
+        equipped={equipped}
+        onClose={dismissUnlocked}
+        onEquip={equipBadge}
+      />
     </div>
   );
 };
