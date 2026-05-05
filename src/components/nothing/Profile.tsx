@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { i18n, type Lang } from "@/lib/phrases";
 import { toast } from "sonner";
 import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N } from "@/lib/checkpoints";
+import { Search } from "@/components/nothing/Search";
 
 type ProfileRow = {
   id: string;
@@ -239,6 +240,10 @@ export function Profile({
       >
         <LogOut size={12} /> {t.sign_out}
       </button>
+
+      <div className="mt-12 -mx-6">
+        <Search lang={lang} userId={userId} />
+      </div>
     </div>
   );
 }
