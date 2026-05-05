@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Languages, Home as HomeIcon, Trophy, ShoppingBag, Check, User as UserIcon, Sun, Moon, Search as SearchIcon, Send, Inbox } from "lucide-react";
+import { Languages, Home as HomeIcon, Trophy, ShoppingBag, Check, User as UserIcon, Sun, Moon, Send, Inbox } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { i18n, phrases, type Lang } from "@/lib/phrases";
@@ -229,7 +229,6 @@ const Index = () => {
         <div className="max-w-md mx-auto flex items-center justify-around py-3">
           {([
             { id: "home", icon: HomeIcon, label: t.home },
-            { id: "search", icon: SearchIcon, label: t.search },
             { id: "leaderboard", icon: Trophy, label: t.leaderboard },
             { id: "shop", icon: ShoppingBag, label: t.shop },
             { id: "profile", icon: UserIcon, label: t.profile },
