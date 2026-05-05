@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { i18n, type Lang } from "@/lib/phrases";
 import { toast } from "sonner";
 import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N } from "@/lib/checkpoints";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type ProfileRow = {
   id: string;
@@ -314,16 +315,22 @@ export function Profile({
               if (!ownedBadges.includes(d.threshold)) return null;
               const isEq = isSelf && equipped === d.threshold;
               return (
-                <button
-                  key={d.threshold}
-                  onClick={() => isSelf && onEquip(d.threshold)}
-                  disabled={!isSelf}
-                  title={d.name[lang]}
-                  className={`flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-colors ${isEq ? "bg-foreground text-background" : "bg-secondary/40 hover:bg-secondary text-foreground"} ${!isSelf ? "cursor-default" : ""}`}
-                >
-                  <span className="font-serif-italic text-2xl leading-none">{d.badge}</span>
-                  <span className="text-[9px] tracking-wider opacity-70">{d.name[lang]}</span>
-                </button>
+                <Tooltip key={d.threshold}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => isSelf && onEquip(d.threshold)}
+                      disabled={!isSelf}
+                      className={`flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-colors ${isEq ? "bg-foreground text-background" : "bg-secondary/40 hover:bg-secondary text-foreground"} ${!isSelf ? "cursor-default" : ""}`}
+                    >
+                      <span className="font-serif-italic text-2xl leading-none">{d.badge}</span>
+                      <span className="text-[9px] tracking-wider opacity-70">{d.name[lang]}</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[200px] text-xs">
+                    <div className="font-serif-italic text-sm mb-0.5">{d.name[lang]}</div>
+                    <div className="text-[10px] text-muted-foreground tracking-wider">{cpT.requires} {d.threshold} {cpT.clicks}</div>
+                  </TooltipContent>
+                </Tooltip>
               );
             })}
           </div>
