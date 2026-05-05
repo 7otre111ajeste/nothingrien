@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Languages, Home as HomeIcon, Trophy, ShoppingBag, Check, User as UserIcon, LogOut, Sun, Moon, Search as SearchIcon, Send, Inbox } from "lucide-react";
+import { Languages, Home as HomeIcon, Trophy, ShoppingBag, Check, User as UserIcon, Sun, Moon, Search as SearchIcon, Send, Inbox } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { i18n, phrases, type Lang } from "@/lib/phrases";
@@ -11,10 +11,11 @@ import { StatPill } from "@/components/nothing/StatPill";
 import { BoostRow } from "@/components/nothing/BoostRow";
 import { Leaderboard } from "@/components/nothing/Leaderboard";
 import { Search } from "@/components/nothing/Search";
+import { Profile } from "@/components/nothing/Profile";
 import { CheckpointOverlay } from "@/components/nothing/CheckpointOverlay";
 import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N } from "@/lib/checkpoints";
 
-type Tab = "home" | "search" | "leaderboard" | "shop";
+type Tab = "home" | "search" | "leaderboard" | "shop" | "profile";
 
 const Index = () => {
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("nothing.lang") as Lang) || "en");
@@ -91,11 +92,11 @@ const Index = () => {
             </Link>
           ) : (
             <button
-              onClick={async () => { await supabase.auth.signOut(); window.location.reload(); }}
+              onClick={() => setTab("profile")}
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
               title={username ?? ""}
             >
-              <LogOut size={14} />
+              <UserIcon size={14} />
               <span className="flex items-center gap-1">
                 {username ?? "sign out"}
                 {equippedDef && <span className="font-serif-italic text-foreground text-base leading-none">{equippedDef.badge}</span>}
@@ -205,6 +206,16 @@ const Index = () => {
 
         {tab === "search" && <Search lang={lang} userId={user?.id} />}
 
+        {tab === "profile" && (
+          <Profile
+            lang={lang}
+            userId={user?.id}
+            badges={stats.badges}
+            equipped={equipped}
+            onEquip={equipBadge}
+          />
+        )}
+
         {tab === "shop" && (
           <div className="flex-1 flex flex-col items-center justify-center pb-24 animate-fade-in-up">
             <div className="font-serif-italic text-4xl mb-2">{t.shop}</div>
@@ -221,6 +232,7 @@ const Index = () => {
             { id: "search", icon: SearchIcon, label: t.search },
             { id: "leaderboard", icon: Trophy, label: t.leaderboard },
             { id: "shop", icon: ShoppingBag, label: t.shop },
+            { id: "profile", icon: UserIcon, label: t.profile },
           ] as const).map(({ id, icon: Icon, label }) => (
             <button
               key={id}
