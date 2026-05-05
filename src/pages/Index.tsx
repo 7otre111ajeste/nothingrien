@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Languages, Home as HomeIcon, Trophy, ShoppingBag, Check } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Languages, Home as HomeIcon, Trophy, ShoppingBag, Check, User as UserIcon, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { i18n, phrases, type Lang } from "@/lib/phrases";
 import { useNothingAuth } from "@/hooks/useNothingAuth";
 import { useNothingStats } from "@/hooks/useNothingStats";
@@ -18,6 +20,8 @@ const Index = () => {
 
   const { user } = useNothingAuth();
   const { stats, session, click, dailyDone } = useNothingStats(user?.id);
+  const isAnon = !user || user.is_anonymous;
+  const username = (user?.user_metadata as any)?.username as string | undefined;
 
   useEffect(() => { localStorage.setItem("nothing.lang", lang); }, [lang]);
 
@@ -33,14 +37,31 @@ const Index = () => {
       {/* top bar */}
       <header className="flex items-center justify-between px-5 pt-5">
         <span className="font-serif-italic text-2xl">nothing</span>
-        <button
-          onClick={() => setLang(l => (l === "en" ? "fr" : "en"))}
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="toggle language"
-        >
-          <Languages size={14} />
-          <span>{lang === "en" ? "fr" : "en"}</span>
-        </button>
+        <div className="flex items-center gap-3">
+          {isAnon ? (
+            <Link to="/auth" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <UserIcon size={14} />
+              <span>sign in</span>
+            </Link>
+          ) : (
+            <button
+              onClick={async () => { await supabase.auth.signOut(); window.location.reload(); }}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              title={username ?? ""}
+            >
+              <LogOut size={14} />
+              <span>{username ?? "sign out"}</span>
+            </button>
+          )}
+          <button
+            onClick={() => setLang(l => (l === "en" ? "fr" : "en"))}
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="toggle language"
+          >
+            <Languages size={14} />
+            <span>{lang === "en" ? "fr" : "en"}</span>
+          </button>
+        </div>
       </header>
 
       <main className="flex-1 flex flex-col">

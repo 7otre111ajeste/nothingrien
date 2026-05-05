@@ -26,6 +26,10 @@ export function useNothingAuth() {
       if (cancelled) return;
       if (data.session?.user) {
         setUser(data.session.user);
+        // ensure profile + stats exist (e.g. for users who signed up elsewhere)
+        const uid = data.session.user.id;
+        await supabase.from("profiles").upsert({ id: uid }, { onConflict: "id", ignoreDuplicates: true });
+        await supabase.from("user_stats").upsert({ user_id: uid }, { onConflict: "user_id", ignoreDuplicates: true });
       } else {
         const { data: signed, error } = await supabase.auth.signInAnonymously();
         if (error) console.error(error);
