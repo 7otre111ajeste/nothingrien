@@ -135,6 +135,13 @@ export const i18n = {
     invalid_username: "3-20 chars, letters/numbers/_",
     sign_out: "sign out",
     member_since: "joined",
+    my_stats: "stats",
+    achievements: "achievements",
+    visit_profile: "view profile",
+    back: "back",
+    send_one_nothing: "send 1 nothing",
+    sent_count: "sent",
+    received_count: "received",
   },
   fr: {
     streak: "série",
@@ -184,6 +191,13 @@ export const i18n = {
     invalid_username: "3-20 car, lettres/chiffres/_",
     sign_out: "déconnexion",
     member_since: "inscrit",
+    my_stats: "stats",
+    achievements: "succès",
+    visit_profile: "voir le profil",
+    back: "retour",
+    send_one_nothing: "envoyer 1 rien",
+    sent_count: "envoyés",
+    received_count: "reçus",
   },
 } as const;
 
