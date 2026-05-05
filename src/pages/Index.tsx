@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Languages, Home as HomeIcon, Trophy, ShoppingBag, Check, User as UserIcon, LogOut } from "lucide-react";
+import { Languages, Home as HomeIcon, Trophy, ShoppingBag, Check, User as UserIcon, LogOut, Sun, Moon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { i18n, phrases, type Lang } from "@/lib/phrases";
 import { useNothingAuth } from "@/hooks/useNothingAuth";
@@ -14,6 +14,7 @@ type Tab = "home" | "leaderboard" | "shop";
 
 const Index = () => {
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("nothing.lang") as Lang) || "en");
+  const [theme, setTheme] = useState<"dark" | "light">(() => (localStorage.getItem("nothing.theme") as "dark" | "light") || "dark");
   const [tab, setTab] = useState<Tab>("home");
   const [phraseIdx, setPhraseIdx] = useState(0);
   const t = i18n[lang];
@@ -24,6 +25,12 @@ const Index = () => {
   const username = (user?.user_metadata as any)?.username as string | undefined;
 
   useEffect(() => { localStorage.setItem("nothing.lang", lang); }, [lang]);
+  useEffect(() => {
+    localStorage.setItem("nothing.theme", theme);
+    const root = document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(theme);
+  }, [theme]);
 
   const handleClick = () => {
     setPhraseIdx(Math.floor(Math.random() * phrases[lang].length));
@@ -38,6 +45,13 @@ const Index = () => {
       <header className="flex items-center justify-between px-5 pt-5">
         <span className="font-serif-italic text-2xl">nothing</span>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setTheme(t => (t === "dark" ? "light" : "dark"))}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="toggle theme"
+          >
+            {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
           {isAnon ? (
             <Link to="/auth" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
               <UserIcon size={14} />
