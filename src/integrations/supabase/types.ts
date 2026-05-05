@@ -55,6 +55,7 @@ export type Database = {
       }
       user_stats: {
         Row: {
+          badges: number[]
           best_session: number
           current_streak: number
           last_click_date: string | null
@@ -64,6 +65,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          badges?: number[]
           best_session?: number
           current_streak?: number
           last_click_date?: string | null
@@ -73,6 +75,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          badges?: number[]
           best_session?: number
           current_streak?: number
           last_click_date?: string | null

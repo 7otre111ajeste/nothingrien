@@ -9,6 +9,8 @@ import { NothingButton } from "@/components/nothing/NothingButton";
 import { StatPill } from "@/components/nothing/StatPill";
 import { BoostRow } from "@/components/nothing/BoostRow";
 import { Leaderboard } from "@/components/nothing/Leaderboard";
+import { CheckpointOverlay } from "@/components/nothing/CheckpointOverlay";
+import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N } from "@/lib/checkpoints";
 
 type Tab = "home" | "leaderboard" | "shop";
 
@@ -20,9 +22,19 @@ const Index = () => {
   const t = i18n[lang];
 
   const { user } = useNothingAuth();
-  const { stats, session, click, dailyDone } = useNothingStats(user?.id);
+  const { stats, session, click, dailyDone, unlocked, dismissUnlocked } = useNothingStats(user?.id);
   const isAnon = !user || user.is_anonymous;
   const username = (user?.user_metadata as any)?.username as string | undefined;
+  const [equipped, setEquipped] = useState<number | null>(() => {
+    const v = localStorage.getItem("nothing.equipped");
+    return v ? Number(v) : null;
+  });
+  const equipBadge = (threshold: number) => {
+    setEquipped(threshold);
+    localStorage.setItem("nothing.equipped", String(threshold));
+  };
+  const equippedDef = equipped ? defFor(equipped) : null;
+  const cpT = CHECKPOINT_I18N[lang];
 
   useEffect(() => { localStorage.setItem("nothing.lang", lang); }, [lang]);
   useEffect(() => {
@@ -60,11 +72,14 @@ const Index = () => {
           ) : (
             <button
               onClick={async () => { await supabase.auth.signOut(); window.location.reload(); }}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
               title={username ?? ""}
             >
               <LogOut size={14} />
-              <span>{username ?? "sign out"}</span>
+              <span className="flex items-center gap-1">
+                {username ?? "sign out"}
+                {equippedDef && <span className="font-serif-italic text-foreground text-base leading-none">{equippedDef.badge}</span>}
+              </span>
             </button>
           )}
           <button
@@ -129,6 +144,33 @@ const Index = () => {
               <h3 className="font-serif-italic text-2xl mb-3">{t.manifesto_title}</h3>
               <p className="text-xs text-muted-foreground leading-relaxed px-2">{t.manifesto_body}</p>
             </section>
+
+            {/* badges */}
+            <section className="mt-12 w-full max-w-md">
+              <div className="text-[10px] tracking-widest text-muted-foreground text-center mb-4">{cpT.badges}</div>
+              {stats.badges.length === 0 ? (
+                <div className="text-center text-xs text-muted-foreground/60 italic">{cpT.none}</div>
+              ) : (
+                <div className="flex flex-wrap justify-center gap-2">
+                  {CHECKPOINT_DEFS.map(d => {
+                    const owned = stats.badges.includes(d.threshold);
+                    if (!owned) return null;
+                    const isEq = equipped === d.threshold;
+                    return (
+                      <button
+                        key={d.threshold}
+                        onClick={() => equipBadge(d.threshold)}
+                        title={d.name[lang]}
+                        className={`flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-colors ${isEq ? "bg-foreground text-background" : "bg-secondary/40 hover:bg-secondary text-foreground"}`}
+                      >
+                        <span className="font-serif-italic text-2xl leading-none">{d.badge}</span>
+                        <span className="text-[9px] tracking-wider opacity-70">{d.name[lang]}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
           </div>
         )}
 
@@ -161,6 +203,14 @@ const Index = () => {
           ))}
         </div>
       </nav>
+
+      <CheckpointOverlay
+        def={unlocked ? defFor(unlocked) ?? null : null}
+        lang={lang}
+        equipped={equipped}
+        onClose={dismissUnlocked}
+        onEquip={equipBadge}
+      />
     </div>
   );
 };
