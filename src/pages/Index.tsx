@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Languages, Home as HomeIcon, Trophy, ShoppingBag, Check, User as UserIcon, LogOut, Sun, Moon } from "lucide-react";
+import { Languages, Home as HomeIcon, Trophy, ShoppingBag, Check, User as UserIcon, LogOut, Sun, Moon, Search as SearchIcon, Send, Inbox } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { i18n, phrases, type Lang } from "@/lib/phrases";
 import { useNothingAuth } from "@/hooks/useNothingAuth";
 import { useNothingStats } from "@/hooks/useNothingStats";
@@ -9,10 +10,11 @@ import { NothingButton } from "@/components/nothing/NothingButton";
 import { StatPill } from "@/components/nothing/StatPill";
 import { BoostRow } from "@/components/nothing/BoostRow";
 import { Leaderboard } from "@/components/nothing/Leaderboard";
+import { Search } from "@/components/nothing/Search";
 import { CheckpointOverlay } from "@/components/nothing/CheckpointOverlay";
 import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N } from "@/lib/checkpoints";
 
-type Tab = "home" | "leaderboard" | "shop";
+type Tab = "home" | "search" | "leaderboard" | "shop";
 
 const Index = () => {
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("nothing.lang") as Lang) || "en");
@@ -35,6 +37,24 @@ const Index = () => {
   };
   const equippedDef = equipped ? defFor(equipped) : null;
   const cpT = CHECKPOINT_I18N[lang];
+
+  // realtime toast on incoming nothing
+  useEffect(() => {
+    if (!user?.id) return;
+    const ch = supabase
+      .channel(`inbox-${user.id}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "nothings", filter: `recipient_id=eq.${user.id}` }, async (payload: any) => {
+        const senderId = payload.new?.sender_id;
+        let name = "someone";
+        if (senderId) {
+          const { data } = await supabase.from("profiles").select("display_name").eq("id", senderId).maybeSingle();
+          if (data?.display_name) name = data.display_name;
+        }
+        toast(`${t.received_toast}`, { description: `· ${name}`, icon: "○" });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [user?.id, t.received_toast]);
 
   useEffect(() => { localStorage.setItem("nothing.lang", lang); }, [lang]);
   useEffect(() => {
@@ -101,6 +121,13 @@ const Index = () => {
               <StatPill label={t.streak} value={stats.current_streak} />
               <StatPill label={t.total} value={stats.total_clicks.toLocaleString()} />
               <StatPill label={t.best} value={stats.best_session} />
+            </div>
+
+            {/* nothings counters */}
+            <div className="mt-3 flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1"><Inbox size={11} /> {stats.nothings_received.toLocaleString()} {t.nothings_recv}</span>
+              <span className="opacity-30">·</span>
+              <span className="flex items-center gap-1"><Send size={11} /> {stats.nothings_sent.toLocaleString()} {t.nothings_sent}</span>
             </div>
 
             {/* daily badge */}
@@ -176,6 +203,8 @@ const Index = () => {
 
         {tab === "leaderboard" && <Leaderboard lang={lang} userId={user?.id} />}
 
+        {tab === "search" && <Search lang={lang} userId={user?.id} />}
+
         {tab === "shop" && (
           <div className="flex-1 flex flex-col items-center justify-center pb-24 animate-fade-in-up">
             <div className="font-serif-italic text-4xl mb-2">{t.shop}</div>
@@ -189,6 +218,7 @@ const Index = () => {
         <div className="max-w-md mx-auto flex items-center justify-around py-3">
           {([
             { id: "home", icon: HomeIcon, label: t.home },
+            { id: "search", icon: SearchIcon, label: t.search },
             { id: "leaderboard", icon: Trophy, label: t.leaderboard },
             { id: "shop", icon: ShoppingBag, label: t.shop },
           ] as const).map(({ id, icon: Icon, label }) => (

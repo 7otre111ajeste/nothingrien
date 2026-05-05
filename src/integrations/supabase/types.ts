@@ -32,6 +32,27 @@ export type Database = {
         }
         Relationships: []
       }
+      nothings: {
+        Row: {
+          created_at: string
+          id: string
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           country: string | null
@@ -60,6 +81,8 @@ export type Database = {
           current_streak: number
           last_click_date: string | null
           longest_streak: number
+          nothings_received: number
+          nothings_sent: number
           total_clicks: number
           updated_at: string
           user_id: string
@@ -70,6 +93,8 @@ export type Database = {
           current_streak?: number
           last_click_date?: string | null
           longest_streak?: number
+          nothings_received?: number
+          nothings_sent?: number
           total_clicks?: number
           updated_at?: string
           user_id: string
@@ -80,6 +105,8 @@ export type Database = {
           current_streak?: number
           last_click_date?: string | null
           longest_streak?: number
+          nothings_received?: number
+          nothings_sent?: number
           total_clicks?: number
           updated_at?: string
           user_id?: string
@@ -91,7 +118,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      send_nothing: { Args: { target: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
