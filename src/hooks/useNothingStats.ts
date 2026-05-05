@@ -9,10 +9,13 @@ export type Stats = {
   best_session: number;
   last_click_date: string | null;
   badges: number[];
+  nothings_sent: number;
+  nothings_received: number;
 };
 
 const empty: Stats = {
   total_clicks: 0, current_streak: 0, longest_streak: 0, best_session: 0, last_click_date: null, badges: [],
+  nothings_sent: 0, nothings_received: 0,
 };
 
 function todayStr() { return new Date().toISOString().slice(0, 10); }
@@ -40,10 +43,27 @@ export function useNothingStats(userId: string | undefined) {
           best_session: data.best_session ?? 0,
           last_click_date: data.last_click_date,
           badges: (data.badges as number[]) ?? [],
+          nothings_sent: data.nothings_sent ?? 0,
+          nothings_received: data.nothings_received ?? 0,
         });
       }
     })();
-    return () => { cancelled = true; };
+
+    // realtime: incoming nothings
+    const channel = supabase
+      .channel(`stats-${userId}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "user_stats", filter: `user_id=eq.${userId}` }, (payload: any) => {
+        const row = payload.new;
+        if (!row) return;
+        setStats(s => ({
+          ...s,
+          nothings_sent: row.nothings_sent ?? s.nothings_sent,
+          nothings_received: row.nothings_received ?? s.nothings_received,
+        }));
+      })
+      .subscribe();
+
+    return () => { cancelled = true; supabase.removeChannel(channel); };
   }, [userId]);
 
   const flush = useCallback(async () => {
