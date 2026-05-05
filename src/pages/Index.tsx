@@ -9,6 +9,8 @@ import { NothingButton } from "@/components/nothing/NothingButton";
 import { StatPill } from "@/components/nothing/StatPill";
 import { BoostRow } from "@/components/nothing/BoostRow";
 import { Leaderboard } from "@/components/nothing/Leaderboard";
+import { CheckpointOverlay } from "@/components/nothing/CheckpointOverlay";
+import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N } from "@/lib/checkpoints";
 
 type Tab = "home" | "leaderboard" | "shop";
 
@@ -20,9 +22,19 @@ const Index = () => {
   const t = i18n[lang];
 
   const { user } = useNothingAuth();
-  const { stats, session, click, dailyDone } = useNothingStats(user?.id);
+  const { stats, session, click, dailyDone, unlocked, dismissUnlocked } = useNothingStats(user?.id);
   const isAnon = !user || user.is_anonymous;
   const username = (user?.user_metadata as any)?.username as string | undefined;
+  const [equipped, setEquipped] = useState<number | null>(() => {
+    const v = localStorage.getItem("nothing.equipped");
+    return v ? Number(v) : null;
+  });
+  const equipBadge = (threshold: number) => {
+    setEquipped(threshold);
+    localStorage.setItem("nothing.equipped", String(threshold));
+  };
+  const equippedDef = equipped ? defFor(equipped) : null;
+  const cpT = CHECKPOINT_I18N[lang];
 
   useEffect(() => { localStorage.setItem("nothing.lang", lang); }, [lang]);
   useEffect(() => {
@@ -60,11 +72,14 @@ const Index = () => {
           ) : (
             <button
               onClick={async () => { await supabase.auth.signOut(); window.location.reload(); }}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
               title={username ?? ""}
             >
               <LogOut size={14} />
-              <span>{username ?? "sign out"}</span>
+              <span className="flex items-center gap-1">
+                {username ?? "sign out"}
+                {equippedDef && <span className="font-serif-italic text-foreground text-base leading-none">{equippedDef.badge}</span>}
+              </span>
             </button>
           )}
           <button
