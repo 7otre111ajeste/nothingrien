@@ -12,7 +12,7 @@ function daysAgo(n: number) {
   return d.toISOString().slice(0, 10);
 }
 
-export function Leaderboard({ lang, userId }: { lang: Lang; userId?: string }) {
+export function Leaderboard({ lang, userId, onOpenProfile }: { lang: Lang; userId?: string; onOpenProfile?: (id: string) => void }) {
   const t = i18n[lang];
   const [cat, setCat] = useState<Cat>("total");
   const [period, setPeriod] = useState<Period>("all");
@@ -134,13 +134,17 @@ export function Leaderboard({ lang, userId }: { lang: Lang; userId?: string }) {
         {rows.map((r, i) => {
           const isMe = r.user_id === userId;
           return (
-            <div key={r.user_id} className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm ${isMe ? "bg-secondary text-foreground" : "text-muted-foreground"}`}>
+            <button
+              key={r.user_id}
+              onClick={() => onOpenProfile?.(r.user_id)}
+              className={`w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors hover:bg-secondary/60 ${isMe ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
+            >
               <span className="flex items-center gap-3">
                 <span className="font-serif-italic text-base w-6 text-right">{i + 1}</span>
-                <span>{r.display_name}{isMe ? ` · ${t.you}` : ""}</span>
+                <span className="hover:underline">{r.display_name}{isMe ? ` · ${t.you}` : ""}</span>
               </span>
               <span className="font-serif-italic text-base">{r.value.toLocaleString()}</span>
-            </div>
+            </button>
           );
         })}
       </div>
