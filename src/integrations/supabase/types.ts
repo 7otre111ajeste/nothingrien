@@ -14,7 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clicks_daily: {
+        Row: {
+          count: number
+          day: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          day: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          day?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          country: string | null
+          created_at: string
+          display_name: string
+          id: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          display_name?: string
+          id: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          best_session: number
+          current_streak: number
+          last_click_date: string | null
+          longest_streak: number
+          total_clicks: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          best_session?: number
+          current_streak?: number
+          last_click_date?: string | null
+          longest_streak?: number
+          total_clicks?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          best_session?: number
+          current_streak?: number
+          last_click_date?: string | null
+          longest_streak?: number
+          total_clicks?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
