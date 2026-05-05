@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { i18n, type Lang } from "@/lib/phrases";
 
-type Cat = "streak" | "session" | "total";
+type Cat = "streak" | "session" | "total" | "received" | "sent";
 type Period = "24h" | "7d" | "30d" | "all";
 
 type Row = { user_id: string; display_name: string; value: number };
@@ -46,7 +46,12 @@ export function Leaderboard({ lang, userId }: { lang: Lang; userId?: string }) {
           .map(([id, v]) => ({ user_id: id, display_name: nameOf.get(id) ?? "anon", value: v }))
           .sort((a, b) => b.value - a.value);
       } else {
-        const col = cat === "streak" ? "current_streak" : cat === "session" ? "best_session" : "total_clicks";
+        const col =
+          cat === "streak" ? "current_streak" :
+          cat === "session" ? "best_session" :
+          cat === "received" ? "nothings_received" :
+          cat === "sent" ? "nothings_sent" :
+          "total_clicks";
         const { data } = await supabase
           .from("user_stats")
           .select(`user_id, ${col}`)
@@ -84,6 +89,8 @@ export function Leaderboard({ lang, userId }: { lang: Lang; userId?: string }) {
     { id: "streak", label: t.cat_streak },
     { id: "session", label: t.cat_session },
     { id: "total", label: t.cat_total },
+    { id: "received", label: t.cat_received },
+    { id: "sent", label: t.cat_sent },
   ], [t]);
   const periods: { id: Period; label: string }[] = [
     { id: "24h", label: t.period_24h },
