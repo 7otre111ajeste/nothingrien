@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { type CheckpointDef, CHECKPOINT_I18N } from "@/lib/checkpoints";
 import type { Lang } from "@/lib/phrases";
 
@@ -83,23 +83,15 @@ function Particles({ anim }: { anim: CheckpointDef["anim"] }) {
 }
 
 export function CheckpointOverlay({ def, lang, equipped, onClose, onEquip }: Props) {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    if (def) {
-      setVisible(true);
-      const t = setTimeout(() => setVisible(false), 4500);
-      return () => clearTimeout(t);
-    }
-  }, [def]);
-
   if (!def) return null;
   const t = CHECKPOINT_I18N[lang];
   const isEquipped = equipped === def.threshold;
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-500 ${visible ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-      onClick={() => { setVisible(false); setTimeout(onClose, 300); }}
+      className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in"
+      role="dialog"
+      aria-modal="true"
     >
       <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -111,12 +103,20 @@ export function CheckpointOverlay({ def, lang, equipped, onClose, onEquip }: Pro
         <h3 className="font-serif-italic text-3xl mb-4">{def.name[lang]}</h3>
         <p className="text-sm text-muted-foreground italic mb-2">{def.message[lang]}</p>
         <p className="text-xs text-muted-foreground/70 mb-6">{def.teaser[lang]}</p>
-        <button
-          onClick={(e) => { e.stopPropagation(); onEquip(def.threshold); }}
-          className="rounded-full border border-foreground/30 px-4 py-1.5 text-xs hover:bg-foreground hover:text-background transition-colors"
-        >
-          {isEquipped ? "✓ " + t.share : t.share + " " + def.badge}
-        </button>
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => onEquip(def.threshold)}
+            className="rounded-full border border-foreground/30 px-4 py-1.5 text-xs hover:bg-foreground hover:text-background transition-colors"
+          >
+            {isEquipped ? "✓ " + t.share : t.share + " " + def.badge}
+          </button>
+          <button
+            onClick={onClose}
+            className="rounded-full bg-foreground text-background px-5 py-1.5 text-xs hover:opacity-90 transition-opacity"
+          >
+            {t.ok}
+          </button>
+        </div>
       </div>
     </div>
   );

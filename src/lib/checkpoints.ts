@@ -109,6 +109,6 @@ export function checkpointReached(prev: number, next: number): Checkpoint | unde
 
 // short mysterious "checkpoint" labels (i18n)
 export const CHECKPOINT_I18N = {
-  en: { unlocked: "you unlocked", continue: "keep tapping. another awaits.", badges: "badges", none: "no badges yet. press the button.", share: "wear it" },
-  fr: { unlocked: "tu as débloqué", continue: "continue. un autre t'attend.", badges: "badges", none: "pas encore de badge. appuie sur le bouton.", share: "afficher" },
+  en: { unlocked: "you unlocked", continue: "keep tapping. another awaits.", badges: "badges", none: "no badges yet. press the button.", share: "wear it", ok: "ok" },
+  fr: { unlocked: "tu as débloqué", continue: "continue. un autre t'attend.", badges: "badges", none: "pas encore de badge. appuie sur le bouton.", share: "afficher", ok: "ok" },
 } as const;
