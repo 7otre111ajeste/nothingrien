@@ -7,6 +7,23 @@ import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N, tr } from "@/lib/checkpoints"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
+const RECEIVED_DESC: Record<string, string> = {
+  en: "nothings received from other users", fr: "riens reçus des autres utilisateurs",
+  es: "nadas recibidas de otros usuarios", pt: "nadas recebidos de outros usuários",
+  de: "nichtse von anderen nutzern erhalten", it: "nienti ricevuti dagli altri utenti",
+  ru: "ничего, полученные от других", zh: "从其他用户收到的无", ja: "他のユーザーから受け取った無",
+  ko: "다른 사용자로부터 받은 무", hi: "अन्य उपयोगकर्ताओं से प्राप्त nothings",
+  ar: "لا شيء مستلم من مستخدمين آخرين",
+};
+const SENT_DESC: Record<string, string> = {
+  en: "nothings sent to other users (max 3/day)", fr: "riens envoyés aux autres (max 3/jour)",
+  es: "nadas enviadas a otros (máx 3/día)", pt: "nadas enviados a outros (máx 3/dia)",
+  de: "an andere gesendete nichtse (max 3/tag)", it: "nienti inviati ad altri (max 3/giorno)",
+  ru: "ничего, отправленные другим (макс 3/день)", zh: "发送给其他用户的无 (每日最多3)",
+  ja: "他ユーザーへ送信した無 (1日3まで)", ko: "다른 사용자에게 보낸 무 (하루 최대 3)",
+  hi: "अन्य को भेजे गए nothings (अधिकतम 3/दिन)", ar: "لا شيء مرسل للآخرين (3 كحد أقصى يومياً)",
+};
+
 type ProfileRow = {
   id: string;
   display_name: string;
@@ -338,16 +355,26 @@ export function Profile({
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <div className="rounded-lg bg-background/40 border border-border px-2.5 py-1.5 flex items-center gap-2">
-            <Inbox size={11} className="text-muted-foreground shrink-0" />
-            <span className="font-num text-sm leading-none">{(stats?.nothings_received ?? 0).toLocaleString()}</span>
-            <span className="text-[9px] tracking-wider text-muted-foreground ml-auto">{t.received_count}</span>
-          </div>
-          <div className="rounded-lg bg-background/40 border border-border px-2.5 py-1.5 flex items-center gap-2">
-            <Send size={11} className="text-muted-foreground shrink-0" />
-            <span className="font-num text-sm leading-none">{(stats?.nothings_sent ?? 0).toLocaleString()}</span>
-            <span className="text-[9px] tracking-wider text-muted-foreground ml-auto">{t.sent_count}</span>
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="rounded-lg bg-background/40 border border-border px-2.5 py-1.5 flex items-center gap-2 cursor-help">
+                <Inbox size={11} className="text-muted-foreground shrink-0" />
+                <span className="font-num text-sm leading-none">{(stats?.nothings_received ?? 0).toLocaleString()}</span>
+                <span className="text-[9px] tracking-wider text-muted-foreground ml-auto">{t.received_count}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[200px] text-xs">{RECEIVED_DESC[lang] ?? RECEIVED_DESC.en}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="rounded-lg bg-background/40 border border-border px-2.5 py-1.5 flex items-center gap-2 cursor-help">
+                <Send size={11} className="text-muted-foreground shrink-0" />
+                <span className="font-num text-sm leading-none">{(stats?.nothings_sent ?? 0).toLocaleString()}</span>
+                <span className="text-[9px] tracking-wider text-muted-foreground ml-auto">{t.sent_count}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[200px] text-xs">{SENT_DESC[lang] ?? SENT_DESC.en}</TooltipContent>
+          </Tooltip>
         </div>
 
         {isSelf && profile.avatar_url && (
