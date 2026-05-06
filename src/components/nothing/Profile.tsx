@@ -338,16 +338,26 @@ export function Profile({
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <div className="rounded-lg bg-background/40 border border-border px-2.5 py-1.5 flex items-center gap-2">
-            <Inbox size={11} className="text-muted-foreground shrink-0" />
-            <span className="font-num text-sm leading-none">{(stats?.nothings_received ?? 0).toLocaleString()}</span>
-            <span className="text-[9px] tracking-wider text-muted-foreground ml-auto">{t.received_count}</span>
-          </div>
-          <div className="rounded-lg bg-background/40 border border-border px-2.5 py-1.5 flex items-center gap-2">
-            <Send size={11} className="text-muted-foreground shrink-0" />
-            <span className="font-num text-sm leading-none">{(stats?.nothings_sent ?? 0).toLocaleString()}</span>
-            <span className="text-[9px] tracking-wider text-muted-foreground ml-auto">{t.sent_count}</span>
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="rounded-lg bg-background/40 border border-border px-2.5 py-1.5 flex items-center gap-2 cursor-help">
+                <Inbox size={11} className="text-muted-foreground shrink-0" />
+                <span className="font-num text-sm leading-none">{(stats?.nothings_received ?? 0).toLocaleString()}</span>
+                <span className="text-[9px] tracking-wider text-muted-foreground ml-auto">{t.received_count}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[200px] text-xs">{t.received_desc}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="rounded-lg bg-background/40 border border-border px-2.5 py-1.5 flex items-center gap-2 cursor-help">
+                <Send size={11} className="text-muted-foreground shrink-0" />
+                <span className="font-num text-sm leading-none">{(stats?.nothings_sent ?? 0).toLocaleString()}</span>
+                <span className="text-[9px] tracking-wider text-muted-foreground ml-auto">{t.sent_count}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[200px] text-xs">{t.sent_desc}</TooltipContent>
+          </Tooltip>
         </div>
 
         {isSelf && profile.avatar_url && (
