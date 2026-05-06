@@ -351,7 +351,7 @@ function StatBox({ icon, label, value }: { icon: React.ReactNode; label: string;
   return (
     <div className="rounded-lg bg-secondary/40 border border-border px-2 py-3 flex flex-col items-center gap-1">
       <span className="text-muted-foreground">{icon}</span>
-      <span className="font-serif-italic text-xl leading-none">{value}</span>
+      <span className="font-num text-xl leading-none">{value}</span>
       <span className="text-[9px] tracking-wider text-muted-foreground text-center">{label}</span>
     </div>
   );
