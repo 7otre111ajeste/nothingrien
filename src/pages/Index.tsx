@@ -17,6 +17,23 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Splash } from "@/components/nothing/Splash";
 
+const RECEIVED_DESC: Record<string, string> = {
+  en: "nothings received from other users", fr: "riens reçus des autres utilisateurs",
+  es: "nadas recibidas de otros usuarios", pt: "nadas recebidos de outros usuários",
+  de: "nichtse von anderen nutzern erhalten", it: "nienti ricevuti dagli altri utenti",
+  ru: "ничего, полученные от других", zh: "从其他用户收到的无", ja: "他のユーザーから受け取った無",
+  ko: "다른 사용자로부터 받은 무", hi: "अन्य उपयोगकर्ताओं से प्राप्त nothings",
+  ar: "لا شيء مستلم من مستخدمين آخرين",
+};
+const SENT_DESC: Record<string, string> = {
+  en: "nothings sent to other users (max 3/day)", fr: "riens envoyés aux autres (max 3/jour)",
+  es: "nadas enviadas a otros (máx 3/día)", pt: "nadas enviados a outros (máx 3/dia)",
+  de: "an andere gesendete nichtse (max 3/tag)", it: "nienti inviati ad altri (max 3/giorno)",
+  ru: "ничего, отправленные другим (макс 3/день)", zh: "发送给其他用户的无 (每日最多3)",
+  ja: "他ユーザーへ送信した無 (1日3まで)", ko: "다른 사용자에게 보낸 무 (하루 최대 3)",
+  hi: "अन्य को भेजे गए nothings (अधिकतम 3/दिन)", ar: "لا شيء مرسل للآخرين (3 كحد أقصى يومياً)",
+};
+
 type Tab = "home" | "leaderboard" | "shop" | "profile";
 
 const Index = () => {
@@ -169,9 +186,19 @@ const Index = () => {
 
             {/* nothings counters */}
             <div className="mt-3 flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
-              <span className="flex items-center gap-1"><Inbox size={11} /> {stats.nothings_received.toLocaleString()} {t.nothings_recv}</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex items-center gap-1 cursor-help"><Inbox size={11} /> {stats.nothings_received.toLocaleString()} {t.nothings_recv}</span>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[200px] text-xs">{RECEIVED_DESC[lang] ?? RECEIVED_DESC.en}</TooltipContent>
+              </Tooltip>
               <span className="opacity-30">·</span>
-              <span className="flex items-center gap-1"><Send size={11} /> {stats.nothings_sent.toLocaleString()} {t.nothings_sent}</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex items-center gap-1 cursor-help"><Send size={11} /> {stats.nothings_sent.toLocaleString()} {t.nothings_sent}</span>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[200px] text-xs">{SENT_DESC[lang] ?? SENT_DESC.en}</TooltipContent>
+              </Tooltip>
             </div>
 
             {/* daily badge */}
