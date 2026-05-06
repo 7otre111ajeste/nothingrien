@@ -12,6 +12,7 @@ type ProfileRow = {
   avatar_url: string | null;
   quote: string | null;
   created_at: string;
+  equipped_badges: number[];
 };
 type StatRow = {
   user_id: string;
@@ -30,16 +31,14 @@ export function Profile({
   viewUserId,
   onView,
   badges,
-  equipped,
-  onEquip,
+  onEquippedChange,
 }: {
   lang: Lang;
   userId?: string;
   viewUserId?: string | null;
   onView: (id: string | null) => void;
   badges: number[];
-  equipped: number | null;
-  onEquip: (t: number) => void;
+  onEquippedChange?: (eq: number[]) => void;
 }) {
   const t = i18n[lang];
   const cpT = CHECKPOINT_I18N[lang];
@@ -70,14 +69,16 @@ export function Profile({
     setProfile(null); setStats(null); setSentCount(0);
     (async () => {
       const [{ data: p }, { data: s }] = await Promise.all([
-        supabase.from("profiles").select("id, display_name, avatar_url, quote, created_at").eq("id", targetId).maybeSingle(),
+        supabase.from("profiles").select("id, display_name, avatar_url, quote, created_at, equipped_badges").eq("id", targetId).maybeSingle(),
         supabase.from("user_stats").select("*").eq("user_id", targetId).maybeSingle(),
       ]);
       if (p) {
-        setProfile(p as ProfileRow);
+        const row = { ...(p as any), equipped_badges: (p as any).equipped_badges ?? [] } as ProfileRow;
+        setProfile(row);
         if (isSelf) {
           setUsername(p.display_name ?? "");
           setQuote(p.quote ?? "");
+          onEquippedChange?.(row.equipped_badges);
         }
       }
       if (s) setStats(s as StatRow);
@@ -152,8 +153,23 @@ export function Profile({
     return <div className="flex-1 flex items-center justify-center pb-24 text-xs text-muted-foreground">…</div>;
   }
 
-  const equippedDef = isSelf && equipped ? defFor(equipped) : null;
   const ownedBadges = (isSelf ? badges : (stats?.badges ?? []));
+  const equippedList = profile.equipped_badges ?? [];
+
+  const toggleEquip = async (threshold: number) => {
+    if (!isSelf || !userId) return;
+    let next: number[];
+    if (equippedList.includes(threshold)) {
+      next = equippedList.filter(t => t !== threshold);
+    } else {
+      if (equippedList.length >= 3) { toast.error("max 3"); return; }
+      next = [...equippedList, threshold];
+    }
+    setProfile(p => p ? { ...p, equipped_badges: next } : p);
+    onEquippedChange?.(next);
+    const { error } = await supabase.from("profiles").update({ equipped_badges: next }).eq("id", userId);
+    if (error) toast.error(error.message);
+  };
 
   return (
     <div className="w-full max-w-md mx-auto px-6 pb-24 pt-6 animate-fade-in-up">
@@ -240,8 +256,11 @@ export function Profile({
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-base flex items-center gap-1.5 truncate">
-              {profile.display_name}
-              {equippedDef && <span className="font-serif-italic text-xl leading-none">{equippedDef.badge}</span>}
+              <span className="truncate">{profile.display_name}</span>
+              {equippedList.map(thr => {
+                const d = defFor(thr);
+                return d ? <span key={thr} className="font-serif-italic text-xl leading-none">{d.badge}</span> : null;
+              })}
             </div>
             <div className="text-[10px] text-muted-foreground tracking-wider mt-0.5">
               {t.member_since} {new Date(profile.created_at).toLocaleDateString(lang)}
@@ -332,12 +351,12 @@ export function Profile({
           <div className="flex flex-wrap justify-center gap-2">
             {CHECKPOINT_DEFS.map(d => {
               if (!ownedBadges.includes(d.threshold)) return null;
-              const isEq = isSelf && equipped === d.threshold;
+              const isEq = isSelf && equippedList.includes(d.threshold);
               return (
                 <Tooltip key={d.threshold}>
                   <TooltipTrigger asChild>
                     <button
-                      onClick={() => isSelf && onEquip(d.threshold)}
+                      onClick={() => isSelf && toggleEquip(d.threshold)}
                       disabled={!isSelf}
                       className={`flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-colors ${isEq ? "bg-foreground text-background" : "bg-secondary/40 hover:bg-secondary text-foreground"} ${!isSelf ? "cursor-default" : ""}`}
                     >

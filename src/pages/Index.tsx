@@ -37,15 +37,27 @@ const Index = () => {
   const { stats, session, click, dailyDone, unlocked, dismissUnlocked } = useNothingStats(user?.id);
   const isAnon = !user || user.is_anonymous;
   const username = (user?.user_metadata as any)?.username as string | undefined;
-  const [equipped, setEquipped] = useState<number | null>(() => {
-    const v = localStorage.getItem("nothing.equipped");
-    return v ? Number(v) : null;
-  });
-  const equipBadge = (threshold: number) => {
-    setEquipped(threshold);
-    localStorage.setItem("nothing.equipped", String(threshold));
+  const [equippedList, setEquippedList] = useState<number[]>([]);
+  // load from profile
+  useEffect(() => {
+    if (!user?.id) { setEquippedList([]); return; }
+    (async () => {
+      const { data } = await supabase.from("profiles").select("equipped_badges").eq("id", user.id).maybeSingle();
+      if (data?.equipped_badges) setEquippedList(data.equipped_badges as number[]);
+    })();
+  }, [user?.id]);
+  const equipBadge = async (threshold: number) => {
+    if (!user?.id) return;
+    let next: number[];
+    if (equippedList.includes(threshold)) {
+      next = equippedList.filter(t => t !== threshold);
+    } else {
+      if (equippedList.length >= 3) { toast.error("max 3"); return; }
+      next = [...equippedList, threshold];
+    }
+    setEquippedList(next);
+    await supabase.from("profiles").update({ equipped_badges: next }).eq("id", user.id);
   };
-  const equippedDef = equipped ? defFor(equipped) : null;
   const cpT = CHECKPOINT_I18N[lang];
 
   // realtime toast on incoming nothing
@@ -115,7 +127,10 @@ const Index = () => {
               <UserIcon size={14} />
               <span className="flex items-center gap-1">
                 {username ?? "sign out"}
-                {equippedDef && <span className="font-serif-italic text-foreground text-base leading-none">{equippedDef.badge}</span>}
+                {equippedList.map(thr => {
+                  const d = defFor(thr);
+                  return d ? <span key={thr} className="font-serif-italic text-foreground text-base leading-none">{d.badge}</span> : null;
+                })}
               </span>
             </button>
           )}
@@ -211,7 +226,7 @@ const Index = () => {
                   {CHECKPOINT_DEFS.map(d => {
                     const owned = stats.badges.includes(d.threshold);
                     if (!owned) return null;
-                    const isEq = equipped === d.threshold;
+                    const isEq = equippedList.includes(d.threshold);
                     return (
                       <Tooltip key={d.threshold}>
                         <TooltipTrigger asChild>
@@ -251,8 +266,7 @@ const Index = () => {
             viewUserId={viewUserId}
             onView={setViewUserId}
             badges={stats.badges}
-            equipped={equipped}
-            onEquip={equipBadge}
+            onEquippedChange={setEquippedList}
           />
         )}
 
@@ -288,7 +302,7 @@ const Index = () => {
       <CheckpointOverlay
         def={unlocked ? defFor(unlocked) ?? null : null}
         lang={lang}
-        equipped={equipped}
+        equipped={equippedList.length > 0 ? equippedList[0] : null}
         onClose={dismissUnlocked}
         onEquip={equipBadge}
       />

@@ -59,6 +59,7 @@ export type Database = {
           country: string | null
           created_at: string
           display_name: string
+          equipped_badges: number[]
           id: string
           quote: string | null
         }
@@ -67,6 +68,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           display_name?: string
+          equipped_badges?: number[]
           id: string
           quote?: string | null
         }
@@ -75,6 +77,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           display_name?: string
+          equipped_badges?: number[]
           id?: string
           quote?: string | null
         }
