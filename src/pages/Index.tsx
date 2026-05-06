@@ -127,7 +127,10 @@ const Index = () => {
               <UserIcon size={14} />
               <span className="flex items-center gap-1">
                 {username ?? "sign out"}
-                {equippedDef && <span className="font-serif-italic text-foreground text-base leading-none">{equippedDef.badge}</span>}
+                {equippedList.map(thr => {
+                  const d = defFor(thr);
+                  return d ? <span key={thr} className="font-serif-italic text-foreground text-base leading-none">{d.badge}</span> : null;
+                })}
               </span>
             </button>
           )}
@@ -223,7 +226,7 @@ const Index = () => {
                   {CHECKPOINT_DEFS.map(d => {
                     const owned = stats.badges.includes(d.threshold);
                     if (!owned) return null;
-                    const isEq = equipped === d.threshold;
+                    const isEq = equippedList.includes(d.threshold);
                     return (
                       <Tooltip key={d.threshold}>
                         <TooltipTrigger asChild>
@@ -263,8 +266,7 @@ const Index = () => {
             viewUserId={viewUserId}
             onView={setViewUserId}
             badges={stats.badges}
-            equipped={equipped}
-            onEquip={equipBadge}
+            onEquippedChange={setEquippedList}
           />
         )}
 
@@ -300,7 +302,7 @@ const Index = () => {
       <CheckpointOverlay
         def={unlocked ? defFor(unlocked) ?? null : null}
         lang={lang}
-        equipped={equipped}
+        equipped={equippedList.length > 0 ? equippedList[0] : null}
         onClose={dismissUnlocked}
         onEquip={equipBadge}
       />
