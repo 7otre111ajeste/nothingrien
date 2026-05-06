@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { type CheckpointDef, CHECKPOINT_I18N } from "@/lib/checkpoints";
+import { type CheckpointDef, CHECKPOINT_I18N, tr } from "@/lib/checkpoints";
 import type { Lang } from "@/lib/phrases";
 
 type Props = {
@@ -100,9 +100,9 @@ export function CheckpointOverlay({ def, lang, equipped, onClose, onEquip }: Pro
       <div className="relative text-center px-8 max-w-sm animate-fade-in-up">
         <div className="font-serif-italic text-7xl mb-2">{def.badge}</div>
         <div className="text-[10px] tracking-[0.3em] text-muted-foreground uppercase mb-2">{t.unlocked}</div>
-        <h3 className="font-serif-italic text-3xl mb-4">{def.name[lang]}</h3>
-        <p className="text-sm text-muted-foreground italic mb-2">{def.message[lang]}</p>
-        <p className="text-xs text-muted-foreground/70 mb-6">{def.teaser[lang]}</p>
+        <h3 className="font-serif-italic text-3xl mb-4">{tr(def.name, lang)}</h3>
+        <p className="text-sm text-muted-foreground italic mb-2">{tr(def.message, lang)}</p>
+        <p className="text-xs text-muted-foreground/70 mb-6">{tr(def.teaser, lang)}</p>
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => onEquip(def.threshold)}

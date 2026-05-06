@@ -3,7 +3,7 @@ import { Camera, Save, LogOut, Trash2, User as UserIcon, Search as SearchIcon, X
 import { supabase } from "@/integrations/supabase/client";
 import { i18n, type Lang } from "@/lib/phrases";
 import { toast } from "sonner";
-import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N } from "@/lib/checkpoints";
+import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N, tr } from "@/lib/checkpoints";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type ProfileRow = {
@@ -187,16 +187,14 @@ export function Profile({
               autoFocus
               value={q}
               onChange={e => setQ(e.target.value)}
-              placeholder={lang === "fr" ? "chercher un username…" : "search username…"}
+              placeholder={t.search + "…"}
               className="w-full bg-secondary/40 border border-border rounded-full pl-9 pr-4 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground/40"
             />
           </div>
           {q.trim().length >= 2 && (
             <div className="mt-2 space-y-1 max-h-72 overflow-y-auto">
               {results.length === 0 ? (
-                <div className="text-center text-xs text-muted-foreground/60 py-3">
-                  {lang === "fr" ? "personne trouvé." : "no one found."}
-                </div>
+                <div className="text-center text-xs text-muted-foreground/60 py-3">—</div>
               ) : results.map(r => (
                 <button
                   key={r.id}
@@ -252,7 +250,7 @@ export function Profile({
           <div className="mt-2 text-xs text-muted-foreground italic text-center max-w-xs">"{profile.quote}"</div>
         )}
         <div className="text-[10px] text-muted-foreground tracking-wider mt-1">
-          {t.member_since} {new Date(profile.created_at).toLocaleDateString(lang === "fr" ? "fr-FR" : "en-US")}
+          {t.member_since} {new Date(profile.created_at).toLocaleDateString(lang)}
         </div>
 
         {/* send nothing (other user) */}
@@ -323,11 +321,11 @@ export function Profile({
                       className={`flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-colors ${isEq ? "bg-foreground text-background" : "bg-secondary/40 hover:bg-secondary text-foreground"} ${!isSelf ? "cursor-default" : ""}`}
                     >
                       <span className="font-serif-italic text-2xl leading-none">{d.badge}</span>
-                      <span className="text-[9px] tracking-wider opacity-70">{d.name[lang]}</span>
+                      <span className="text-[9px] tracking-wider opacity-70">{tr(d.name, lang)}</span>
                     </button>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-[200px] text-xs">
-                    <div className="font-serif-italic text-sm mb-0.5">{d.name[lang]}</div>
+                    <div className="font-serif-italic text-sm mb-0.5">{tr(d.name, lang)}</div>
                     <div className="text-[10px] text-muted-foreground tracking-wider">{cpT.requires} {d.threshold} {cpT.clicks}</div>
                   </TooltipContent>
                 </Tooltip>

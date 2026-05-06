@@ -36,7 +36,7 @@ type Profile = {
 type StatLite = { user_id: string; nothings_sent: number; nothings_received: number };
 
 export function Search({ lang, userId }: { lang: Lang; userId?: string }) {
-  const t = T[lang];
+  const t = (T as any)[lang] ?? T.en;
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Profile[]>([]);
   const [stats, setStats] = useState<Record<string, StatLite>>({});

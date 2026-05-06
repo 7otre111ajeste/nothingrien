@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Languages, Home as HomeIcon, Trophy, ShoppingBag, Check, User as UserIcon, Sun, Moon, Send, Inbox } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { i18n, phrases, type Lang } from "@/lib/phrases";
+import { i18n, phrases, LANGS, LANG_META, type Lang } from "@/lib/phrases";
 import { useNothingAuth } from "@/hooks/useNothingAuth";
 import { useNothingStats } from "@/hooks/useNothingStats";
 import { NothingButton } from "@/components/nothing/NothingButton";
@@ -12,13 +12,19 @@ import { BoostRow } from "@/components/nothing/BoostRow";
 import { Leaderboard } from "@/components/nothing/Leaderboard";
 import { Profile } from "@/components/nothing/Profile";
 import { CheckpointOverlay } from "@/components/nothing/CheckpointOverlay";
-import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N } from "@/lib/checkpoints";
+import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N, tr } from "@/lib/checkpoints";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Tab = "home" | "leaderboard" | "shop" | "profile";
 
 const Index = () => {
-  const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("nothing.lang") as Lang) || "en");
+  const [lang, setLang] = useState<Lang>(() => {
+    const saved = localStorage.getItem("nothing.lang") as Lang | null;
+    if (saved && (LANGS as readonly string[]).includes(saved)) return saved;
+    const nav = (typeof navigator !== "undefined" ? navigator.language : "en").slice(0, 2) as Lang;
+    return ((LANGS as readonly string[]).includes(nav) ? nav : "en");
+  });
   const [theme, setTheme] = useState<"dark" | "light">(() => (localStorage.getItem("nothing.theme") as "dark" | "light") || "dark");
   const [tab, setTab] = useState<Tab>("home");
   const [viewUserId, setViewUserId] = useState<string | null>(null);
@@ -58,7 +64,11 @@ const Index = () => {
     return () => { supabase.removeChannel(ch); };
   }, [user?.id, t.received_toast]);
 
-  useEffect(() => { localStorage.setItem("nothing.lang", lang); }, [lang]);
+  useEffect(() => {
+    localStorage.setItem("nothing.lang", lang);
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  }, [lang]);
   useEffect(() => {
     localStorage.setItem("nothing.theme", theme);
     const root = document.documentElement;
@@ -104,14 +114,26 @@ const Index = () => {
               </span>
             </button>
           )}
-          <button
-            onClick={() => setLang(l => (l === "en" ? "fr" : "en"))}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="toggle language"
-          >
-            <Languages size={14} />
-            <span>{lang === "en" ? "fr" : "en"}</span>
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={t.language}
+              >
+                <Languages size={14} />
+                <span>{LANG_META[lang].flag} {lang}</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="max-h-[60vh] overflow-y-auto">
+              {LANGS.map(l => (
+                <DropdownMenuItem key={l} onClick={() => setLang(l)} className="text-xs gap-2">
+                  <span>{LANG_META[l].flag}</span>
+                  <span className="flex-1">{LANG_META[l].label}</span>
+                  <span className="text-muted-foreground italic">{LANG_META[l].nothing}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
@@ -193,11 +215,11 @@ const Index = () => {
                             className={`flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-colors ${isEq ? "bg-foreground text-background" : "bg-secondary/40 hover:bg-secondary text-foreground"}`}
                           >
                             <span className="font-serif-italic text-2xl leading-none">{d.badge}</span>
-                            <span className="text-[9px] tracking-wider opacity-70">{d.name[lang]}</span>
+                            <span className="text-[9px] tracking-wider opacity-70">{tr(d.name, lang)}</span>
                           </button>
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[200px] text-xs">
-                          <div className="font-serif-italic text-sm mb-0.5">{d.name[lang]}</div>
+                          <div className="font-serif-italic text-sm mb-0.5">{tr(d.name, lang)}</div>
                           <div className="text-[10px] text-muted-foreground tracking-wider">{cpT.requires} {d.threshold} {cpT.clicks}</div>
                         </TooltipContent>
                       </Tooltip>
