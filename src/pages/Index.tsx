@@ -177,7 +177,7 @@ const Index = () => {
 
             {/* session counter */}
             <div className="mt-10 text-center">
-              <div className="font-serif-italic text-5xl">{session.toLocaleString()}</div>
+              <div className="font-num text-5xl">{session.toLocaleString()}</div>
               <div className="text-[10px] tracking-widest text-muted-foreground mt-1">{t.session}</div>
             </div>
 
