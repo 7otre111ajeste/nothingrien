@@ -15,10 +15,12 @@ import { CheckpointOverlay } from "@/components/nothing/CheckpointOverlay";
 import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N, tr } from "@/lib/checkpoints";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Splash } from "@/components/nothing/Splash";
 
 type Tab = "home" | "leaderboard" | "shop" | "profile";
 
 const Index = () => {
+  const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem("nothing.splashed"));
   const [lang, setLang] = useState<Lang>(() => {
     const saved = localStorage.getItem("nothing.lang") as Lang | null;
     if (saved && (LANGS as readonly string[]).includes(saved)) return saved;
@@ -85,6 +87,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
+      {showSplash && (
+        <Splash lang={lang} onDone={() => { sessionStorage.setItem("nothing.splashed", "1"); setShowSplash(false); }} />
+      )}
       {/* top bar */}
       <header className="flex items-center justify-between px-5 pt-5">
         <span className="font-serif-italic text-2xl">nothing</span>
