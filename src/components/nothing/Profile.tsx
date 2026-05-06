@@ -346,7 +346,7 @@ export function Profile({
                 <span className="text-[9px] tracking-wider text-muted-foreground ml-auto">{t.received_count}</span>
               </div>
             </TooltipTrigger>
-            <TooltipContent className="max-w-[200px] text-xs">{t.received_desc}</TooltipContent>
+            <TooltipContent className="max-w-[200px] text-xs">{RECEIVED_DESC[lang] ?? RECEIVED_DESC.en}</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -356,7 +356,7 @@ export function Profile({
                 <span className="text-[9px] tracking-wider text-muted-foreground ml-auto">{t.sent_count}</span>
               </div>
             </TooltipTrigger>
-            <TooltipContent className="max-w-[200px] text-xs">{t.sent_desc}</TooltipContent>
+            <TooltipContent className="max-w-[200px] text-xs">{SENT_DESC[lang] ?? SENT_DESC.en}</TooltipContent>
           </Tooltip>
         </div>
 
