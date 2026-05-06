@@ -212,53 +212,74 @@ export function Profile({
         </div>
       )}
 
-      {/* avatar */}
-      <div className="flex flex-col items-center mb-8">
-        <div className="relative">
-          <div className="h-28 w-28 rounded-full bg-secondary/60 border border-border overflow-hidden flex items-center justify-center">
-            {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt="avatar" className="h-full w-full object-cover" />
-            ) : (
-              <UserIcon size={36} className="text-muted-foreground" />
+      {/* public profile card */}
+      <div className="mb-8 rounded-2xl border border-border bg-secondary/30 p-5">
+        <div className="flex items-start gap-4">
+          <div className="relative shrink-0">
+            <div className="h-20 w-20 rounded-full bg-secondary/60 border border-border overflow-hidden flex items-center justify-center">
+              {profile.avatar_url ? (
+                <img src={profile.avatar_url} alt="avatar" className="h-full w-full object-cover" />
+              ) : (
+                <UserIcon size={28} className="text-muted-foreground" />
+              )}
+            </div>
+            {isSelf && (
+              <>
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  disabled={uploading}
+                  className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-foreground text-background flex items-center justify-center disabled:opacity-50"
+                  aria-label={t.upload}
+                >
+                  <Camera size={12} />
+                </button>
+                <input ref={fileRef} type="file" accept="image/*" className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) upload(f); e.target.value = ""; }} />
+              </>
             )}
           </div>
-          {isSelf && (
-            <button
-              onClick={() => fileRef.current?.click()}
-              disabled={uploading}
-              className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-foreground text-background flex items-center justify-center disabled:opacity-50"
-              aria-label={t.upload}
-            >
-              <Camera size={14} />
-            </button>
-          )}
-          {isSelf && (
-            <input ref={fileRef} type="file" accept="image/*" className="hidden"
-              onChange={e => { const f = e.target.files?.[0]; if (f) upload(f); e.target.value = ""; }} />
-          )}
+          <div className="flex-1 min-w-0">
+            <div className="text-base flex items-center gap-1.5 truncate">
+              {profile.display_name}
+              {equippedDef && <span className="font-serif-italic text-xl leading-none">{equippedDef.badge}</span>}
+            </div>
+            <div className="text-[10px] text-muted-foreground tracking-wider mt-0.5">
+              {t.member_since} {new Date(profile.created_at).toLocaleDateString(lang)}
+            </div>
+            {profile.quote ? (
+              <div className="mt-2 text-xs text-muted-foreground italic">"{profile.quote}"</div>
+            ) : null}
+          </div>
         </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="rounded-lg bg-background/40 border border-border px-3 py-2.5 flex items-center gap-2">
+            <Inbox size={12} className="text-muted-foreground" />
+            <div className="flex-1">
+              <div className="font-num text-lg leading-none">{(stats?.nothings_received ?? 0).toLocaleString()}</div>
+              <div className="text-[9px] tracking-wider text-muted-foreground mt-1">{t.received_count}</div>
+            </div>
+          </div>
+          <div className="rounded-lg bg-background/40 border border-border px-3 py-2.5 flex items-center gap-2">
+            <Send size={12} className="text-muted-foreground" />
+            <div className="flex-1">
+              <div className="font-num text-lg leading-none">{(stats?.nothings_sent ?? 0).toLocaleString()}</div>
+              <div className="text-[9px] tracking-wider text-muted-foreground mt-1">{t.sent_count}</div>
+            </div>
+          </div>
+        </div>
+
         {isSelf && profile.avatar_url && (
           <button onClick={removeAvatar} className="mt-3 flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground">
             <Trash2 size={11} /> {t.remove}
           </button>
         )}
-        <div className="mt-3 text-base flex items-center gap-1.5">
-          {profile.display_name}
-          {equippedDef && <span className="font-serif-italic text-xl leading-none">{equippedDef.badge}</span>}
-        </div>
-        {profile.quote && (
-          <div className="mt-2 text-xs text-muted-foreground italic text-center max-w-xs">"{profile.quote}"</div>
-        )}
-        <div className="text-[10px] text-muted-foreground tracking-wider mt-1">
-          {t.member_since} {new Date(profile.created_at).toLocaleDateString(lang)}
-        </div>
 
-        {/* send nothing (other user) */}
         {!isSelf && (
           <button
             onClick={sendNothing}
             disabled={sending}
-            className="mt-5 flex items-center gap-1.5 rounded-full bg-foreground text-background px-4 py-2 text-xs disabled:opacity-50 hover:opacity-90"
+            className="mt-4 w-full flex items-center justify-center gap-1.5 rounded-full bg-foreground text-background px-4 py-2 text-xs disabled:opacity-50 hover:opacity-90"
           >
             {sentCount > 0 ? <Check size={12} /> : <Send size={12} />}
             <span>{sentCount > 0 ? `${t.sent_count} ×${sentCount}` : t.send_one_nothing}</span>
