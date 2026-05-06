@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS equipped_badges integer[] NOT NULL DEFAULT '{}'::integer[];
