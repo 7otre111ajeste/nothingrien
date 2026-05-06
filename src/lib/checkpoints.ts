@@ -1,19 +1,22 @@
 import type { Lang } from "./phrases";
 
+// Localize a partial dictionary, falling back to English.
+export function tr(obj: Partial<Record<Lang, string>> & { en: string }, lang: Lang): string {
+  return obj[lang] ?? obj.en;
+}
+
 // 12 checkpoints — secrets, on n'affiche jamais les chiffres à l'avance
 export const CHECKPOINTS = [10, 25, 50, 100, 150, 200, 300, 500, 1000, 2000, 5000, 10000] as const;
 export type Checkpoint = typeof CHECKPOINTS[number];
 
+type LocStr = Partial<Record<Lang, string>> & { en: string };
 export type CheckpointDef = {
   threshold: Checkpoint;
-  // animation key handled by overlay component
   anim: "ripple" | "shatter" | "spiral" | "stars" | "void" | "rain" | "explode" | "drift" | "halo" | "monolith" | "cosmos" | "ascend";
-  // emoji-only badge (no image asset needed)
   badge: string;
-  name: { en: string; fr: string };
-  message: { en: string; fr: string };
-  // mysterious teaser hinting another checkpoint exists, NEVER reveals the number
-  teaser: { en: string; fr: string };
+  name: LocStr;
+  message: LocStr;
+  teaser: LocStr;
 };
 
 export const CHECKPOINT_DEFS: CheckpointDef[] = [
@@ -107,8 +110,18 @@ export function checkpointReached(prev: number, next: number): Checkpoint | unde
   return undefined;
 }
 
-// short mysterious "checkpoint" labels (i18n)
-export const CHECKPOINT_I18N = {
-  en: { unlocked: "you unlocked", continue: "keep tapping. another awaits.", badges: "badges", none: "no badges yet. press the button.", share: "wear it", ok: "ok", requires: "reach", clicks: "session clicks" },
-  fr: { unlocked: "tu as débloqué", continue: "continue. un autre t'attend.", badges: "badges", none: "pas encore de badge. appuie sur le bouton.", share: "afficher", ok: "ok", requires: "atteins", clicks: "clics en session" },
-} as const;
+// short mysterious "checkpoint" labels (i18n) — all supported langs
+export const CHECKPOINT_I18N: Record<Lang, { unlocked: string; continue: string; badges: string; none: string; share: string; ok: string; requires: string; clicks: string; }> = {
+  en: { unlocked:"you unlocked", continue:"keep tapping. another awaits.", badges:"badges", none:"no badges yet. press the button.", share:"wear it", ok:"ok", requires:"reach", clicks:"session clicks" },
+  fr: { unlocked:"tu as débloqué", continue:"continue. un autre t'attend.", badges:"badges", none:"pas encore de badge. appuie sur le bouton.", share:"afficher", ok:"ok", requires:"atteins", clicks:"clics en session" },
+  es: { unlocked:"desbloqueaste", continue:"sigue pulsando. otro espera.", badges:"insignias", none:"aún sin insignias. pulsa el botón.", share:"llevar", ok:"ok", requires:"alcanza", clicks:"clics en sesión" },
+  pt: { unlocked:"você desbloqueou", continue:"continue. outro te espera.", badges:"medalhas", none:"sem medalhas ainda. aperte o botão.", share:"usar", ok:"ok", requires:"alcance", clicks:"cliques na sessão" },
+  de: { unlocked:"du hast freigeschaltet", continue:"weiter drücken. ein weiteres wartet.", badges:"abzeichen", none:"noch keine abzeichen. drück den knopf.", share:"tragen", ok:"ok", requires:"erreiche", clicks:"sitzungs-klicks" },
+  it: { unlocked:"hai sbloccato", continue:"continua. un altro ti aspetta.", badges:"distintivi", none:"nessun distintivo ancora. premi il pulsante.", share:"indossa", ok:"ok", requires:"raggiungi", clicks:"clic in sessione" },
+  ru: { unlocked:"ты разблокировал", continue:"продолжай. ждёт ещё один.", badges:"значки", none:"пока нет значков. нажми кнопку.", share:"носить", ok:"ок", requires:"достигни", clicks:"кликов за сессию" },
+  zh: { unlocked:"你解锁了", continue:"继续按。还有一个在等。", badges:"徽章", none:"还没有徽章。按下按钮。", share:"佩戴", ok:"好", requires:"达到", clicks:"会话点击" },
+  ja: { unlocked:"アンロック", continue:"押し続けろ。次が待っている。", badges:"バッジ", none:"まだバッジなし。ボタンを押せ。", share:"装着", ok:"ok", requires:"到達", clicks:"セッションクリック" },
+  ko: { unlocked:"해제했다", continue:"계속 눌러. 또 하나가 기다린다.", badges:"배지", none:"아직 배지 없음. 버튼을 눌러.", share:"착용", ok:"확인", requires:"도달", clicks:"세션 클릭" },
+  hi: { unlocked:"तुमने अनलॉक किया", continue:"दबाते रहो। एक और इंतज़ार में।", badges:"बैज", none:"अभी कोई बैज नहीं। बटन दबाओ।", share:"पहनें", ok:"ठीक", requires:"पहुंचें", clicks:"सत्र क्लिक" },
+  ar: { unlocked:"لقد فتحت", continue:"استمر بالضغط. آخر بانتظارك.", badges:"شارات", none:"لا شارات بعد. اضغط الزر.", share:"ارتدِ", ok:"حسناً", requires:"اوصل إلى", clicks:"نقرات الجلسة" },
+};
