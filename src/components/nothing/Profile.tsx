@@ -338,19 +338,15 @@ export function Profile({
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <div className="rounded-lg bg-background/40 border border-border px-3 py-2.5 flex items-center gap-2">
-            <Inbox size={12} className="text-muted-foreground" />
-            <div className="flex-1">
-              <div className="font-num text-lg leading-none">{(stats?.nothings_received ?? 0).toLocaleString()}</div>
-              <div className="text-[9px] tracking-wider text-muted-foreground mt-1">{t.received_count}</div>
-            </div>
+          <div className="rounded-lg bg-background/40 border border-border px-2.5 py-1.5 flex items-center gap-2">
+            <Inbox size={11} className="text-muted-foreground shrink-0" />
+            <span className="font-num text-sm leading-none">{(stats?.nothings_received ?? 0).toLocaleString()}</span>
+            <span className="text-[9px] tracking-wider text-muted-foreground ml-auto">{t.received_count}</span>
           </div>
-          <div className="rounded-lg bg-background/40 border border-border px-3 py-2.5 flex items-center gap-2">
-            <Send size={12} className="text-muted-foreground" />
-            <div className="flex-1">
-              <div className="font-num text-lg leading-none">{(stats?.nothings_sent ?? 0).toLocaleString()}</div>
-              <div className="text-[9px] tracking-wider text-muted-foreground mt-1">{t.sent_count}</div>
-            </div>
+          <div className="rounded-lg bg-background/40 border border-border px-2.5 py-1.5 flex items-center gap-2">
+            <Send size={11} className="text-muted-foreground shrink-0" />
+            <span className="font-num text-sm leading-none">{(stats?.nothings_sent ?? 0).toLocaleString()}</span>
+            <span className="text-[9px] tracking-wider text-muted-foreground ml-auto">{t.sent_count}</span>
           </div>
         </div>
 
