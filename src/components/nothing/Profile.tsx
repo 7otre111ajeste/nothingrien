@@ -162,7 +162,7 @@ export function Profile({
     if (equippedList.includes(threshold)) {
       next = equippedList.filter(t => t !== threshold);
     } else {
-      if (equippedList.length >= 3) { toast.error(cpT.max_three ?? "max 3"); return; }
+      if (equippedList.length >= 3) { toast.error("max 3"); return; }
       next = [...equippedList, threshold];
     }
     setProfile(p => p ? { ...p, equipped_badges: next } : p);
