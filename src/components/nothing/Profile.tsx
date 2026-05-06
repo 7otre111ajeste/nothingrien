@@ -256,8 +256,11 @@ export function Profile({
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-base flex items-center gap-1.5 truncate">
-              {profile.display_name}
-              {equippedDef && <span className="font-serif-italic text-xl leading-none">{equippedDef.badge}</span>}
+              <span className="truncate">{profile.display_name}</span>
+              {equippedList.map(thr => {
+                const d = defFor(thr);
+                return d ? <span key={thr} className="font-serif-italic text-xl leading-none">{d.badge}</span> : null;
+              })}
             </div>
             <div className="text-[10px] text-muted-foreground tracking-wider mt-0.5">
               {t.member_since} {new Date(profile.created_at).toLocaleDateString(lang)}
@@ -348,12 +351,12 @@ export function Profile({
           <div className="flex flex-wrap justify-center gap-2">
             {CHECKPOINT_DEFS.map(d => {
               if (!ownedBadges.includes(d.threshold)) return null;
-              const isEq = isSelf && equipped === d.threshold;
+              const isEq = isSelf && equippedList.includes(d.threshold);
               return (
                 <Tooltip key={d.threshold}>
                   <TooltipTrigger asChild>
                     <button
-                      onClick={() => isSelf && onEquip(d.threshold)}
+                      onClick={() => isSelf && toggleEquip(d.threshold)}
                       disabled={!isSelf}
                       className={`flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-colors ${isEq ? "bg-foreground text-background" : "bg-secondary/40 hover:bg-secondary text-foreground"} ${!isSelf ? "cursor-default" : ""}`}
                     >
