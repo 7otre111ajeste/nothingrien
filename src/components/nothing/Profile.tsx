@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Camera, Save, LogOut, Trash2, User as UserIcon, Search as SearchIcon, X, ArrowLeft, Send, Check, Flame, MousePointerClick, Trophy, Inbox, Award } from "lucide-react";
+import { Camera, Save, LogOut, Trash2, User as UserIcon, Search as SearchIcon, X, ArrowLeft, Send, Check, Flame, MousePointerClick, Trophy, Inbox, Award, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { i18n, type Lang } from "@/lib/phrases";
 import { toast } from "sonner";
 import { CHECKPOINT_DEFS, defFor, CHECKPOINT_I18N, tr } from "@/lib/checkpoints";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 type ProfileRow = {
   id: string;
@@ -255,19 +256,84 @@ export function Profile({
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-base flex items-center gap-1.5 truncate">
-              <span className="truncate">{profile.display_name}</span>
-              {equippedList.map(thr => {
-                const d = defFor(thr);
-                return d ? <span key={thr} className="font-serif-italic text-xl leading-none">{d.badge}</span> : null;
-              })}
-            </div>
+            <div className="text-base truncate">{profile.display_name}</div>
             <div className="text-[10px] text-muted-foreground tracking-wider mt-0.5">
               {t.member_since} {new Date(profile.created_at).toLocaleDateString(lang)}
             </div>
             {profile.quote ? (
               <div className="mt-2 text-xs text-muted-foreground italic">"{profile.quote}"</div>
             ) : null}
+
+            {/* 3 badge slots */}
+            <div className="mt-3 flex items-center gap-2">
+              {[0, 1, 2].map(slot => {
+                const thr = equippedList[slot];
+                const d = thr ? defFor(thr) : null;
+                if (d) {
+                  return (
+                    <Tooltip key={slot}>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => isSelf && toggleEquip(d.threshold)}
+                          disabled={!isSelf}
+                          className="h-9 w-9 rounded-full bg-background/60 border border-border flex items-center justify-center hover:bg-background transition-colors"
+                        >
+                          <span className="font-serif-italic text-xl leading-none">{d.badge}</span>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[200px] text-xs">
+                        <div className="font-serif-italic text-sm mb-0.5">{tr(d.name, lang)}</div>
+                        <div className="text-[10px] text-muted-foreground tracking-wider">{cpT.requires} {d.threshold} {cpT.clicks}</div>
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                }
+                if (!isSelf) {
+                  return <span key={slot} className="h-9 w-9 rounded-full border border-dashed border-border/60" />;
+                }
+                const available = (badges ?? []).filter(b => !equippedList.includes(b));
+                return (
+                  <Popover key={slot}>
+                    <PopoverTrigger asChild>
+                      <button
+                        className="h-9 w-9 rounded-full border border-dashed border-border hover:border-foreground/40 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
+                        aria-label="add badge"
+                      >
+                        <Plus size={14} />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-56 p-2">
+                      {available.length === 0 ? (
+                        <div className="text-center text-xs text-muted-foreground italic py-2">{cpT.none}</div>
+                      ) : (
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {available.map(b => {
+                            const dd = defFor(b);
+                            if (!dd) return null;
+                            return (
+                              <Tooltip key={b}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    onClick={() => toggleEquip(b)}
+                                    className="h-10 w-10 rounded-md bg-secondary/40 hover:bg-secondary flex items-center justify-center"
+                                  >
+                                    <span className="font-serif-italic text-xl leading-none">{dd.badge}</span>
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-[180px] text-xs">
+                                  <div className="font-serif-italic text-sm mb-0.5">{tr(dd.name, lang)}</div>
+                                  <div className="text-[10px] text-muted-foreground tracking-wider">{cpT.requires} {dd.threshold} {cpT.clicks}</div>
+                                </TooltipContent>
+                              </Tooltip>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </PopoverContent>
+                  </Popover>
+                );
+              })}
+            </div>
           </div>
         </div>
 
